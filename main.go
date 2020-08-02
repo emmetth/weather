@@ -2,6 +2,8 @@ package main
 
 import (
 	"fmt"
+	"os"
+	"strconv"
 	"strings"
 	"time"
 )
@@ -35,7 +37,31 @@ func render(f Forecast) {
 }
 
 func main() {
-	f, err := getForecast(32.776566, -79.930923)
+	envLat, latOk := os.LookupEnv("LATITUDE")
+	envLong, longOk := os.LookupEnv("LONGITUDE")
+	if !latOk {
+		fmt.Println("Error: Enivronment variable LATITUDE is not set.")
+	}
+	if !longOk {
+		fmt.Println("Error: Enivronment variable LONGITUDE is not set.")
+	}
+	if !latOk || !longOk {
+		os.Exit(1)
+	}
+
+	lat, latErr := strconv.ParseFloat(envLat, 64)
+	if latErr != nil {
+		fmt.Println("Error: Invalid Latitude (float64)")
+	}
+	long, longErr := strconv.ParseFloat(envLong, 64)
+	if longErr != nil {
+		fmt.Println("Error: Invalid Longitude (float64)")
+	}
+	if latErr != nil || longErr != nil {
+		os.Exit(1)
+	}
+
+	f, err := getForecast(lat, long)
 	if err != nil {
 		fmt.Println(err)
 		return
